@@ -91,13 +91,13 @@ void TransitGraph::Fill(vector<transit::Stop> const & stops, vector<transit::Gat
       AddGate(gate, ending, stopCoords, false /* isEnter */);
   }
 
-  map<transit::StopId, set<transit::Edge>> outgoing;
-  map<transit::StopId, set<transit::Edge>> ingoing;
+  map<transit::StopId, set<Segment>> outgoing;
+  map<transit::StopId, set<Segment>> ingoing;
   for (auto const & edge : edges)
   {
-    AddEdge(edge, stopCoords);
-    outgoing[edge.GetStartStopId()].insert(edge);
-    ingoing[edge.GetFinishStopId()].insert(edge);
+    auto const edgeSegment = AddEdge(edge, stopCoords);
+    outgoing[edge.GetStartStopId()].insert(edgeSegment);
+    ingoing[edge.GetFinishStopId()].insert(edgeSegment);
   }
 
   AddConnections(outgoing, true /* isOutgoing */);
@@ -167,8 +167,8 @@ void TransitGraph::AddGate(transit::Gate const & gate, FakeEnding const & ending
   }
 }
 
-void TransitGraph::AddEdge(transit::Edge const & edge,
-                           map<transit::StopId, Junction> const & stopCoords)
+Segment TransitGraph::AddEdge(transit::Edge const & edge,
+                              map<transit::StopId, Junction> const & stopCoords)
 {
   auto const edgeSegment = GetNewTransitSegment();
   auto const startStopId = edge.GetStartStopId();
@@ -180,28 +180,26 @@ void TransitGraph::AddEdge(transit::Edge const & edge,
   FakeVertex edgeVertex(startStopIt->second, finishStopIt->second, FakeVertex::Type::PureFake);
   m_fake.AddStandaloneVertex(edgeSegment, edgeVertex);
   m_segmentToEdge[edgeSegment] = edge;
-  m_edgeToSegment[edge] = edgeSegment;
   m_stopToBack[startStopId].insert(edgeSegment);
   m_stopToFront[finishStopId].insert(edgeSegment);
+  return edgeSegment;
 }
 
-void TransitGraph::AddConnections(map<transit::StopId, set<transit::Edge>> const & connections,
+void TransitGraph::AddConnections(map<transit::StopId, set<Segment>> const & connections,
                                   bool isOutgoing)
 {
   for (auto const & connection : connections)
   {
-    for (auto const & edge : connection.second)
+    for (auto const & connectedSegment : connection.second)
     {
-      auto const edgeIt = m_edgeToSegment.find(edge);
-      CHECK(edgeIt != m_edgeToSegment.cend(), ("Unknown edge", edge));
       auto const & adjacentSegments = isOutgoing ? m_stopToFront : m_stopToBack;
       auto const segmentsIt = adjacentSegments.find(connection.first);
       if (segmentsIt == adjacentSegments.cend())
         continue;
       for (auto const & segment : segmentsIt->second)
       {
-        m_fake.AddConnection(isOutgoing ? segment : edgeIt->second,
-                             isOutgoing ? edgeIt->second : segment);
+        m_fake.AddConnection(isOutgoing ? segment : connectedSegment,
+                             isOutgoing ? connectedSegment : segment);
       }
     }
   }
