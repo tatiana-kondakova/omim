@@ -133,7 +133,7 @@ UNIT_TEST(RoadAccess_Smoke)
 
 UNIT_TEST(RoadAccess_AccessPrivate)
 {
-  string const roadAccessContent = R"(Car Private 0)";
+  string const roadAccessContent = R"(Car Private 0 0)";
   string const osmIdsToFeatureIdsContent = R"(0, 0,)";
   auto const roadAccessAllTypes =
       SaveAndLoadRoadAccess(roadAccessContent, osmIdsToFeatureIdsContent);
@@ -143,10 +143,10 @@ UNIT_TEST(RoadAccess_AccessPrivate)
 
 UNIT_TEST(RoadAccess_Access_Multiple_Vehicle_Types)
 {
-  string const roadAccessContent = R"(Car Private 10
-                                     Car Private 20
-                                     Bicycle No 30
-                                     Car Destination 40)";
+  string const roadAccessContent = R"(Car Private 10 0
+                                     Car Private 20 0
+                                     Bicycle No 30 0
+                                     Car Destination 40 0)";
   string const osmIdsToFeatureIdsContent = R"(10, 1,
                                              20, 2,
                                              30, 3,
