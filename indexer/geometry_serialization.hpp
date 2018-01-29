@@ -153,9 +153,19 @@ namespace serial
   }
 
   inline void const * LoadInnerTriangles(void const * pBeg, size_t count,
-                                         CodingParams const & params, OutPointsT & points)
+                                         CodingParams const & params, OutPointsT & triangles)
   {
-    return LoadInner(&geo_coding::DecodeTriangleStrip, pBeg, count, params, points);
+    triangles.clear();
+    OutPointsT points;
+    void const * res = LoadInner(&geo_coding::DecodeTriangleStrip, pBeg, count, params, points);
+
+    for (uint8_t i = 2; i < count; ++i)
+    {
+      triangles.push_back(points[i - 2]);
+      triangles.push_back(points[i - 1]);
+      triangles.push_back(points[i]);
+    }
+    return res;
   }
 
   class TrianglesChainSaver

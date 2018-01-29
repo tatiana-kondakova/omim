@@ -29,7 +29,6 @@
 // +------------------------------+
 // |        Level N data          |
 // +------------------------------+
-
 class IntervalIndexBuilder
 {
 public:
@@ -132,8 +131,8 @@ public:
       }
       if (maxCount > 0)
       {
-        LOG(LINFO, ("Most populous cell:", maxCount,
-                    mostPopulousCell.GetCell(), mostPopulousCell.GetFeature()));
+        LOG(LINFO, ("Most populous cell:", maxCount, mostPopulousCell.GetCell(),
+                    mostPopulousCell.GetValue()));
       }
     }
 
@@ -141,7 +140,8 @@ public:
     for (CellIdValueIterT it = beg; it != end; ++it)
     {
       CHECK_LESS(it->GetCell(), 1ULL << keyBits, ());
-      CHECK_EQUAL(it->GetFeature(), static_cast<uint32_t>(it->GetFeature()), ());
+      // We use static_cast<int64_t>(value) in BuildLeaves to store values difference as VarInt.
+      CHECK_EQUAL(it->GetValue(), static_cast<int64_t>(it->GetValue()), ());
     }
 
     return true;
@@ -208,6 +208,8 @@ public:
   void BuildLeaves(WriterT & writer, CellIdValueIterT const & beg, CellIdValueIterT const & end,
                    vector<uint32_t> & sizes)
   {
+    using Value = typename CellIdValueIterT::value_type::ValueType;
+
     uint32_t const skipBits = 8 * m_LeafBytes;
     uint64_t prevKey = 0;
     uint64_t prevValue = 0;
@@ -215,7 +217,7 @@ public:
     for (CellIdValueIterT it = beg; it != end; ++it)
     {
       uint64_t const key = it->GetCell();
-      uint64_t const value = it->GetFeature();
+      Value const value = it->GetValue();
       if (it != beg && (key >> skipBits) != (prevKey >> skipBits))
       {
         sizes.push_back(static_cast<uint32_t>(writer.Pos() - prevPos));
