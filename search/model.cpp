@@ -85,6 +85,9 @@ Model::Type Model::GetType(FeatureType const & feature) const
   static auto const & localityChecker = IsLocalityChecker::Instance();
   static auto const & poiChecker = IsPoiChecker::Instance();
 
+  if (poiChecker(feature))
+    return TYPE_POI;
+
   if (buildingChecker(feature))
     return TYPE_BUILDING;
 
@@ -105,9 +108,6 @@ Model::Type Model::GetType(FeatureType const & feature) const
     case LOCALITY_COUNT: return TYPE_UNCLASSIFIED;
     }
   }
-
-  if (poiChecker(feature))
-    return TYPE_POI;
 
   return TYPE_UNCLASSIFIED;
 }
