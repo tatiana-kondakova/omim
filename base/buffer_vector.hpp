@@ -410,6 +410,12 @@ public:
       resize(std::distance(b, i));
   }
 
+  void erase(iterator pos)
+  {
+    std::remove_if(pos, pos + 1, [](T const &) { return true; });
+    resize(size() - 1);
+  }
+
 private:
   void SwitchToDynamic()
   {
