@@ -398,6 +398,8 @@ private:
 
   uint8_t m_popularity = 0;
 
+  std::vector<std::string> m_subwayStations;
+
   std::string m_primaryFeatureName;
 
   OpeningMode m_openingMode = OpeningMode::Preview;

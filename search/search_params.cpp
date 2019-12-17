@@ -14,8 +14,8 @@ using namespace std::chrono;
 namespace search
 {
 // static
-steady_clock::duration const SearchParams::kDefaultTimeout = seconds(3);
-steady_clock::duration const SearchParams::kDefaultDesktopTimeout = milliseconds(1500);
+steady_clock::duration const SearchParams::kDefaultTimeout = seconds(4);
+steady_clock::duration const SearchParams::kDefaultDesktopTimeout = seconds(2);
 
 bool SearchParams::IsEqualCommon(SearchParams const & rhs) const
 {

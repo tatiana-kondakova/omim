@@ -132,6 +132,7 @@ public:
   void DeserializeForRouting(Reader & reader);
   void DeserializeForRendering(Reader & reader);
   void DeserializeForCrossMwm(Reader & reader);
+  void DeserializeForPlacePage(Reader & reader);
   void AppendTo(GraphData const & rhs);
   void Clear();
   void CheckValidSortedUnique() const;

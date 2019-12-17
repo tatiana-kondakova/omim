@@ -71,6 +71,7 @@ void SerializeCampaign(FileWriter & writer, std::string const & countryName,
 void DeserializeCampaign(ReaderSource<FileReader> & src, std::string & countryName,
                          LocalAdsManager::Timestamp & ts, std::vector<uint8_t> & rawData)
 {
+return;
   countryName = local_ads::ReadCountryName(src);
   ts = local_ads::ReadTimestamp<std::chrono::hours>(src);
   rawData = local_ads::ReadRawData(src);

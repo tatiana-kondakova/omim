@@ -10,6 +10,9 @@
 
 #include "editor/osm_editor.hpp"
 
+#include "transit/transit_graph_data.cpp"
+#include "transit/transit_helpers.cpp"
+
 #include "indexer/feature_source.hpp"
 #include "indexer/feature_utils.hpp"
 #include "indexer/ftypes_sponsored.hpp"
@@ -30,6 +33,13 @@ namespace place_page
 namespace
 {
 auto constexpr kTopRatingBound = 10.0f;
+
+void ParseTransitStops(FeatureID const & gateId)
+{
+  FilesContainerR::TReader reader(mwmValue.m_cont.GetReader(TRANSIT_FILE_TAG));
+  transit::GraphData transitData;
+  transitData.DeserializeForPlacePage(*reader.GetPtr());  
+}
 }  // namespace
 
 char const * const Info::kSubtitleSeparator = " • ";
@@ -60,6 +70,13 @@ void Info::SetFromFeatureType(FeatureType & ft)
   m_sortedTypes = m_types;
   m_sortedTypes.SortBySpec();
   m_primaryFeatureName = primaryName;
+
+  // Subway gate.
+  if (IsSubwayEntranceChecker::Instance()(m_types))
+  {
+
+  }
+
   if (IsBookmark())
   {
     m_uiTitle = GetBookmarkName();
@@ -134,9 +151,13 @@ std::string Info::FormatSubtitle(bool withType) const
   if (HasWifi())
     subtitle.push_back(m_localizedWifiString);
 
-  // Wheelchair
+  // Wheelchair.
   if (GetWheelchairType() == ftraits::WheelchairAvailability::Yes)
     subtitle.push_back(kWheelchairSymbol);
+
+  // Subway gate.
+  if (!m_subwayStations.empty())
+    subtitle.insert(subtitle.end(), m_subwayStations.begin(), m_subwayStations.end());
 
   return strings::JoinStrings(subtitle, kSubtitleSeparator);
 }

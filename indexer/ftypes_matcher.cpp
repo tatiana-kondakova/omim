@@ -221,6 +221,12 @@ IsSubwayStationChecker::IsSubwayStationChecker() : BaseChecker(3 /* level */)
   m_types.push_back(c.GetTypeByPath({"railway", "station", "subway"}));
 }
 
+IsSubwayEntranceChecker::IsSubwayEntranceChecker()
+{
+  Classificator const & c = classif();
+  m_types.push_back(c.GetTypeByPath({"railway", "subway_entrance"}));
+}
+
 IsAirportChecker::IsAirportChecker()
 {
   Classificator const & c = classif();

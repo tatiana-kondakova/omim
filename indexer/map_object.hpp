@@ -97,6 +97,7 @@ public:
   std::string GetLevel() const;
   ftraits::WheelchairAvailability GetWheelchairType() const;
   std::string GetAirportIata() const;
+  std::vector<uint32_t> GetSubwayStations() const; 
 
   // TODO(Vlad, yunikkk): Use Props enum + getters instead of direct metadata access.
   // TODO: Remove this method.

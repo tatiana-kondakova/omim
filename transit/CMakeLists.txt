@@ -9,6 +9,8 @@ set(
   transit_display_info.hpp
   transit_graph_data.cpp
   transit_graph_data.hpp
+  transit_helpers.cpp
+  transit_helpers.hpp
   transit_serdes.hpp
   transit_speed_limits.hpp
   transit_types.cpp

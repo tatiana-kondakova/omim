@@ -308,6 +308,14 @@ void GraphData::DeserializeForCrossMwm(Reader & reader)
   });
 }
 
+void GraphData::DeserializeForPlacePage(Reader & reader)
+{
+  DeserializeWith(reader, [this](NonOwningReaderSource & src) {
+    ReadStops(src);
+    ReadGates(src);
+  });
+}
+
 void GraphData::AppendTo(GraphData const & rhs)
 {
   ::Append(rhs.m_stops, m_stops);
