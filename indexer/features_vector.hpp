@@ -1,6 +1,7 @@
 #pragma once
 
 #include "indexer/feature.hpp"
+#include "indexer/meta_idx.hpp"
 #include "indexer/shared_load_info.hpp"
 
 #include "coding/var_record_reader.hpp"
@@ -22,6 +23,12 @@ public:
                  feature::FeaturesOffsetsTable const * table)
     : m_loadInfo(cont, header), m_recordReader(m_loadInfo.GetDataReader(), 256), m_table(table)
   {
+    if (m_loadInfo.GetMWMFormat() >= version::Format::v10)
+    {
+      auto metaIdxReader = m_loadInfo.GetMetadataIndexReader();
+      m_metaidx = feature::MetadataIndex::Load(*metaIdxReader.GetPtr());
+      CHECK(m_metaidx, ());
+    }
   }
 
   std::unique_ptr<FeatureType> GetByIndex(uint32_t index) const;
@@ -32,7 +39,7 @@ public:
   {
     uint32_t index = 0;
     m_recordReader.ForEachRecord([&](uint32_t pos, char const * data, uint32_t /*size*/) {
-      FeatureType ft(&m_loadInfo, data);
+      FeatureType ft(&m_loadInfo, data, m_metaidx.get());
 
       // We can't properly set MwmId here, because FeaturesVector
       // works with FileContainerR, not with MwmId/MwmHandle/MwmValue.
@@ -59,6 +66,7 @@ private:
   VarRecordReader<FilesContainerR::TReader, &VarRecordSizeReaderVarint> m_recordReader;
   mutable std::vector<char> m_buffer;
   feature::FeaturesOffsetsTable const * m_table;
+  std::unique_ptr<feature::MetadataIndex> m_metaidx;
 };
 
 /// Test features vector (reader) that combines all the needed data for stand-alone work.
