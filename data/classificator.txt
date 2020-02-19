@@ -11,7 +11,6 @@ world  +
         aerodrome  +
             international  -
             {}
-        apron  -
         gate  -
         helipad  -
         runway  -
@@ -122,28 +121,15 @@ world  +
         water_point  -
         {}
     area:highway  +
-        cycleway  -
         footway  -
         living_street  -
-        motorway  -
-        path  -
         pedestrian  -
-        primary  -
-        residential  -
-        secondary  -
-        service  -
-        steps  -
-        tertiary  -
-        track  -
-        trunk  -
-        unclassified  -
         {}
     barrier  +
         block  -
         bollard  -
         border_control  -
         city_wall  -
-        cycle_barrier  -
         entrance  -
         fence  -
         gate  -
@@ -186,11 +172,6 @@ world  +
         train_station  -
         {}
     building:part  -
-    communication  +
-        line  +
-            underground  -
-            {}
-        {}
     complex_entry  -
     craft  +
         brewery  -
@@ -292,9 +273,6 @@ world  +
         vegetarian  -
         vietnamese  -
         {}
-    earthquake:damage  +
-        spontaneous_camp  -
-        {}
     emergency  +
         defibrillator  -
         fire_hydrant  -
@@ -358,7 +336,6 @@ world  +
             bridge  -
             tunnel  -
             {}
-        platform  -
         primary  +
             bridge  -
             tunnel  -
@@ -420,7 +397,6 @@ world  +
             permissive  -
             tunnel  -
             {}
-        traffic_signals  -
         trunk  +
             bridge  -
             tunnel  -
@@ -439,7 +415,6 @@ world  +
         {}
     historic  +
         archaeological_site  -
-        battlefield  -
         boundary_stone  -
         castle  +
             defensive  -
@@ -490,16 +465,13 @@ world  +
     landuse  +
         allotments  -
         basin  -
-        brownfield  -
         cemetery  +
             christian  -
             {}
         churchyard  -
         commercial  -
         construction  -
-        farm  -
         farmland  -
-        farmyard  -
         field  -
         forest  +
             coniferous  -
@@ -508,8 +480,6 @@ world  +
             {}
         garages  -
         grass  -
-        greenfield  -
-        greenhouse_horticulture  -
         industrial  -
         landfill  -
         meadow  -
@@ -519,11 +489,7 @@ world  +
         railway  -
         recreation_ground  -
         reservoir  -
-        residential  +
-            rural  -
-            urban  -
-            {}
-        retail  -
+        residential  -
         salt_pond  -
         village_green  -
         vineyard  -
@@ -562,25 +528,16 @@ world  +
         {}
     man_made  +
         breakwater  -
-        cairn  -
         chimney  -
         cutline  -
         lighthouse  -
         pier  -
-        pipeline  +
-            overground  -
-            {}
-        surveillance  -
         tower  -
-        wastewater_plant  -
         water_tap  -
         water_tower  -
         water_well  -
         windmill  -
         works  -
-        {}
-    mapswithme  +
-        grid  -
         {}
     military  +
         bunker  -
@@ -600,16 +557,12 @@ world  +
         hot_spring  -
         lake  -
         land  -
-        meadow  -
-        orchard  -
         peak  -
         pond  -
         rock  -
         salt_pond  -
         scrub  -
         spring  -
-        tree  -
-        tree_row  -
         vineyard  -
         volcano  -
         water  -
@@ -617,9 +570,6 @@ world  +
             bog  -
             marsh  -
             {}
-        {}
-    noexit  +
-        motor_vehicle  -
         {}
     office  +
         company  -
@@ -629,22 +579,6 @@ world  +
         lawyer  -
         ngo  -
         telecommunication  -
-        {}
-    olympics  +
-        attraction  -
-        bike_sport  -
-        live_site  -
-        official_building  -
-        stadium  -
-        stadium_main  -
-        transport_airport  -
-        transport_boat  -
-        transport_bus  -
-        transport_cable  -
-        transport_railway  -
-        transport_subway  -
-        transport_tram  -
-        water_sport  -
         {}
     piste:lift  +
         j-bar  -
@@ -702,16 +636,9 @@ world  +
         village  -
         {}
     power  +
-        generator  +
-            hydro  -
-            photovoltaic  -
-            wind  -
-            {}
         line  +
             underground  -
             {}
-        minor_line  -
-        pole  -
         station  -
         substation  -
         tower  -
@@ -731,17 +658,12 @@ world  +
             tunnel  -
             {}
         construction  -
-        crossing  -
         disused  -
         funicular  +
             bridge  -
             tunnel  -
             {}
         halt  -
-        incline  +
-            bridge  -
-            tunnel  -
-            {}
         level_crossing  -
         light_rail  +
             bridge  -
@@ -760,19 +682,9 @@ world  +
             bridge  -
             tunnel  -
             {}
-        proposed  -
         rail  +
             bridge  -
             motor_vehicle  -
-            tunnel  -
-            {}
-        razed  -
-        siding  +
-            bridge  -
-            tunnel  -
-            {}
-        spur  +
-            bridge  -
             tunnel  -
             {}
         station  +
@@ -804,23 +716,6 @@ world  +
                 violet  -
                 yellow  -
                 {}
-            {}
-        subway  +
-            blue  -
-            bridge  -
-            brown  -
-            darkgreen  -
-            gray  -
-            green  -
-            grey  -
-            lightblue  -
-            lightgreen  -
-            orange  -
-            purple  -
-            red  -
-            tunnel  -
-            violet  -
-            yellow  -
             {}
         subway_entrance  +
             barcelona  -
@@ -1005,22 +900,14 @@ world  +
         wilderness_hut  -
         zoo  -
         {}
-    traffic_calming  +
-        bump  -
-        hump  -
-        {}
     waterway  +
         canal  +
             tunnel  -
             {}
         dam  -
-        ditch  +
-            tunnel  -
-            {}
+        ditch  -
         dock  -
-        drain  +
-            tunnel  -
-            {}
+        drain  -
         lock  -
         lock_gate  -
         river  +
@@ -1030,7 +917,6 @@ world  +
         stream  +
             ephemeral  -
             intermittent  -
-            tunnel  -
             {}
         waterfall  -
         weir  -
