@@ -390,12 +390,14 @@ node|z8-9[place=region],
 node|z10-14[place=suburb],
 node|z13-[place=locality],
 node|z13-[place=neighbourhood],
+node|z13-[landuse=residential],
 node|z14-[place=farm],
 node|z14-[place=isolated_dwelling],
 {text: name;text-color: @district_label;}
 node|z13-14[place=suburb]::int_name,
 node|z13-[place=locality]::int_name,
 node|z13-[place=neighbourhood]::int_name,
+node|z13-[landuse=residential]::int_name,
 node|z14-[place=farm]::int_name,
 node|z14-[place=isolated_dwelling]::int_name,
 {text: int_name;text-color: @district_label;}
@@ -416,11 +418,13 @@ node|z13-14[place=suburb]::int_name
 node|z8-9[place=region],
 node|z13-[place=locality],
 node|z13-[place=neighbourhood],
+node|z13-[landuse=residential],
 node|z14-[place=farm],
 node|z14-[place=isolated_dwelling],
 {font-size: 12;}
 node|z13-[place=locality]::int_name,
 node|z13-[place=neighbourhood]::int_name,
+node|z13-[landuse=residential]::int_name,
 node|z14-[place=isolated_dwelling]::int_name,
 node|z14-[place=farm]::int_name,
 {font-size: 10;}
