@@ -16,6 +16,8 @@
 #include "indexer/feature_impl.hpp"
 #include "indexer/feature_processor.hpp"
 #include "indexer/feature_visibility.hpp"
+#include "indexer/ftypes_matcher.hpp"
+#include "indexer/height.hpp"
 #include "indexer/meta_idx.hpp"
 #include "indexer/scales.hpp"
 #include "indexer/scales_patch.hpp"
@@ -136,6 +138,17 @@ public:
       metaIdxBuilder.Freeze(*w);
     }
 
+    {
+      FilesContainerW writer(m_filename, FileWriter::OP_WRITE_EXISTING);
+      auto w = writer.GetWriter("height");
+
+      HeightBuilder builder;
+      for (auto const & v : m_height)
+        builder.Put(v.first, v.second);
+
+      builder.Freeze(*w);
+    }
+
     if (m_header.GetType() == DataHeader::MapType::Country ||
         m_header.GetType() == DataHeader::MapType::World)
     {
@@ -235,11 +248,24 @@ public:
 
       if (!fb.GetMetadata().Empty())
       {
-        uint64_t const offset = m_metadataFile->Pos();
-        ASSERT_LESS_OR_EQUAL(offset, numeric_limits<uint32_t>::max(), ());
+        auto const height = fb.GetMetadata().Get(feature::Metadata::FMD_HEIGHT);
+        if (!height.empty())
+        {
+          double d;
+          if(ftypes::IsBuildingChecker::Instance()(fb.GetTypes()) && strings::to_double(height, d) && d > 0)
+            m_height.emplace_back(featureId, static_cast<uint32_t>(d));         
+        }
+ 
+        fb.GetMetadata().Set(feature::Metadata::FMD_HEIGHT, "");
 
-        m_metadataOffset.emplace_back(featureId, static_cast<uint32_t>(offset));
-        fb.GetMetadata().Serialize(*m_metadataFile);
+        if (!fb.GetMetadata().Empty())
+        {
+          uint64_t const offset = m_metadataFile->Pos();
+          ASSERT_LESS_OR_EQUAL(offset, numeric_limits<uint32_t>::max(), ());
+
+          m_metadataOffset.emplace_back(featureId, static_cast<uint32_t>(offset));
+          fb.GetMetadata().Serialize(*m_metadataFile);
+        }
       }
 
       if (fb.HasOsmIds())
@@ -301,6 +327,7 @@ private:
 
   // Mapping from feature id to offset in file section with the correspondent metadata.
   vector<pair<uint32_t, uint32_t>> m_metadataOffset;
+  vector<pair<uint32_t, uint32_t>> m_height;
 
   DataHeader m_header;
   RegionData m_regionData;

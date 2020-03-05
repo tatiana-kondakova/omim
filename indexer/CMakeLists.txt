@@ -88,6 +88,8 @@ set(
   ftypes_matcher.hpp
   ftypes_sponsored.cpp
   ftypes_sponsored.hpp
+  height.cpp
+  height.hpp
   index_builder.cpp
   index_builder.hpp
   interval_index.hpp
