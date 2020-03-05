@@ -95,12 +95,18 @@ private:
 };
 
 template <typename DistanceFn, typename PointsContainer>
-void SimplifyPoints(DistanceFn distFn, int level, PointsContainer const & in, PointsContainer & out)
+void SimplifyPoints(DistanceFn distFn, int level, bool isUselessBuilding, PointsContainer const & in, PointsContainer & out)
 {
   if (in.size() < 2)
     return;
 
-  double const eps = std::pow(scales::GetEpsilonForSimplify(level), 2);
+  double eps = std::pow(scales::GetEpsilonForSimplify(level), 2);
+
+  if (isUselessBuilding && level == scales::GetUpperScale())
+  {
+    eps = mercator::Bounds::kRangeX * 1.3 / double(256L << level);
+    eps = std::pow(eps, 2);
+  }
 
   SimplifyNearOptimal(20, in.begin(), in.end(), eps, distFn,
                       AccumulateSkipSmallTrg<DistanceFn, m2::PointD>(distFn, out, eps));

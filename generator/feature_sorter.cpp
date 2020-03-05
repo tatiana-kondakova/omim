@@ -3,6 +3,7 @@
 #include "generator/borders.hpp"
 #include "generator/feature_builder.hpp"
 #include "generator/feature_generator.hpp"
+#include "generator/feature_maker_base.hpp"
 #include "generator/gen_mwm_info.hpp"
 #include "generator/geometry_holder.hpp"
 #include "generator/region_meta.hpp"
@@ -164,10 +165,31 @@ public:
     GeometryHolder holder([this](int i) -> FileWriter & { return *m_geoFile[i]; },
                           [this](int i) -> FileWriter & { return *m_trgFile[i]; }, fb, m_header);
 
+    int const scalesStart = static_cast<int>(m_header.GetScalesCount()) - 1;
+
+    //auto isUselessHouse = [&](FeatureBuilder & fb) {
+    //  if (!ftypes::IsBuildingChecker::Instance()(fb.GetTypes()))
+    //    return false;
+    //  if (!fb.GetName().empty())
+    //    return false;
+    //  if (!fb.GetParams().house.Get().empty())
+    //    return false;
+    //  return true;
+    //};
+
+    //if (isUselessHouse(fb))
+    //  return kInvalidFeatureId;
+      //generator::TransformToPoint(fb);
+
+    //auto isSmallUnnamedRoad = [&](FeatureBuilder & fb) {
+    //  auto static const residential = classif().GetTypeByPath({"highway", "residential"});
+    //  auto static const service = classif().GetTypeByPath({"highway", "service"});
+    //  return (fb.HasType(residential) || fb.HasType(service));// && fb.GetName().empty();
+    //};
+
     bool const isLine = fb.IsLine();
     bool const isArea = fb.IsArea();
 
-    int const scalesStart = static_cast<int>(m_header.GetScalesCount()) - 1;
     for (int i = scalesStart; i >= 0; --i)
     {
       int const level = m_header.GetScale(i);
@@ -181,9 +203,14 @@ public:
 
         // Do not change linear geometry for the upper scale.
         if (isLine && i == scalesStart && IsCountry() && routing::IsRoad(fb.GetTypes()))
-          points = holder.GetSourcePoints();
+        {
+          //if (isSmallUnnamedRoad(fb))
+          //  SimplifyPoints(level - 2, isCoast, rect, false/*isUselessHouse(fb)*/, holder.GetSourcePoints(), points);
+          //else
+            points = holder.GetSourcePoints();
+        }
         else
-          SimplifyPoints(level, isCoast, rect, holder.GetSourcePoints(), points);
+          SimplifyPoints(level, isCoast, rect, false/*isUselessHouse(fb)*/, holder.GetSourcePoints(), points);
 
         if (isLine)
           holder.AddPoints(points, i);
@@ -213,7 +240,7 @@ public:
           {
             simplified.push_back({});
 
-            SimplifyPoints(level, isCoast, rect, *iH, simplified.back());
+            SimplifyPoints(level, isCoast, rect, false /*isUselessHouse(fb)*/, *iH, simplified.back());
 
             // Increment level check for coastline polygons for the first scale level.
             // This is used for better coastlines quality.
@@ -255,9 +282,8 @@ public:
           if(ftypes::IsBuildingChecker::Instance()(fb.GetTypes()) && strings::to_double(height, d) && d > 0)
             m_height.emplace_back(featureId, static_cast<uint32_t>(d));         
         }
- 
-        fb.GetMetadata().Set(feature::Metadata::FMD_HEIGHT, "");
 
+        fb.GetMetadata().Set(feature::Metadata::FMD_HEIGHT, "");
         if (!fb.GetMetadata().Empty())
         {
           uint64_t const offset = m_metadataFile->Pos();
@@ -302,17 +328,17 @@ private:
 
   bool IsCountry() const { return m_header.GetType() == feature::DataHeader::MapType::Country; }
 
-  void SimplifyPoints(int level, bool isCoast, m2::RectD const & rect, Points const & in,
+  void SimplifyPoints(int level, bool isCoast, m2::RectD const & rect, bool isUselessHouse, Points const & in,
                       Points & out)
   {
     if (isCoast)
     {
       DistanceToSegmentWithRectBounds fn(rect);
-      feature::SimplifyPoints(fn, level, in, out);
+      feature::SimplifyPoints(fn, level, isUselessHouse, in, out);
     }
     else
     {
-      feature::SimplifyPoints(m2::SquaredDistanceFromSegmentToPoint<m2::PointD>(), level, in, out);
+      feature::SimplifyPoints(m2::SquaredDistanceFromSegmentToPoint<m2::PointD>(), level, isUselessHouse, in, out);
     }
   }
 
