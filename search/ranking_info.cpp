@@ -25,29 +25,29 @@ double constexpr kCategoriesRank = 1.0000000;
 double constexpr kCategoriesRating = 0.0500000;
 double constexpr kCategoriesFalseCats = -1.0000000;
 
-double constexpr kDistanceToPivot = -0.2123693;
-double constexpr kRank = 0.1065355;
-double constexpr kPopularity = 1.0000000;
-double constexpr kRating = 0.0716319;
-double constexpr kFalseCats = -0.4172461;
-double constexpr kErrorsMade = -0.0391331;
-double constexpr kMatchedFraction = 0.1876736;
-double constexpr kAllTokensUsed = 0.0478513;
+double constexpr kDistanceToPivot = -1.0000000;
+double constexpr kRank = 0.4673573;
+double constexpr kPopularity = 0.7285900;
+double constexpr kRating = 0.2786824;
+double constexpr kFalseCats = -0.2429927;
+double constexpr kErrorsMade = -0.3023983;
+double constexpr kMatchedFraction = 0.7559174;
+double constexpr kAllTokensUsed = 0.6811599;
 double constexpr kNameScore[NameScore::NAME_SCORE_COUNT] = {
-  0.0085962 /* Zero */,
-  -0.0099698 /* Substring */,
-  -0.0158311 /* Prefix */,
-  0.0172047 /* Full Match */
+  -0.0100895 /* Zero */,
+  -0.1373215 /* Substring */,
+  0.0021099 /* Prefix */,
+  0.1453010 /* Full Match */
 };
 double constexpr kType[Model::TYPE_COUNT] = {
-  -0.0467816 /* POI */,
-  -0.0467816 /* Building */,
-  -0.0444630 /* Street */,
-  -0.0348396 /* Unclassified */,
-  -0.0725383 /* Village */,
-  0.0073583 /* City */,
-  0.0233254 /* State */,
-  0.1679389 /* Country */
+  -0.1654094 /* POI */,
+  -0.1654094 /* Building */,
+  -0.1331235 /* Street */,
+  -0.0288421 /* Unclassified */,
+  -0.0803833 /* Village */,
+  0.1853645 /* City */,
+  0.2272814 /* State */,
+  0.4022893 /* Country */
 };
 
 // Coeffs sanity checks.
