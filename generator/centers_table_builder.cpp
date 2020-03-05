@@ -6,6 +6,7 @@
 #include "indexer/feature_algo.hpp"
 #include "indexer/features_offsets_table.hpp"
 #include "indexer/features_vector.hpp"
+#include "indexer/ftypes_matcher.hpp"
 
 #include "coding/files_container.hpp"
 
@@ -52,9 +53,18 @@ bool BuildCentersTableFromDataFile(std::string const & filename, bool forceRebui
       feature::DataHeader const header(rcont);
       FeaturesVector const features(rcont, header, table.get());
 
+    auto isUselessHouse = [&](FeatureType & fb) {
+      return ftypes::IsBuildingChecker::Instance()(fb) && !fb.HasName() && fb.GetHouseNumber().empty();
+    };
+
+    auto isUselessWay = [&](FeatureType & fb) {
+      return ftypes::IsWayChecker::Instance()(fb) && !fb.HasName();
+    };
+
       builder.SetGeometryParams(header.GetBounds());
       features.ForEach([&](FeatureType & ft, uint32_t featureId) {
-        builder.Put(featureId, feature::GetCenter(ft));
+        if (!isUselessHouse(ft) && !isUselessWay(ft))
+          builder.Put(featureId, feature::GetCenter(ft));
       });
     }
 
