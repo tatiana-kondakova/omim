@@ -33,7 +33,6 @@ class FeatureType
 {
 public:
   using Buffer = char const *;
-  using GeometryOffsets = buffer_vector<uint32_t, feature::DataHeader::kMaxScalesCount>;
 
   FeatureType(feature::SharedLoadInfo const * loadInfo, Buffer buffer,
               feature::MetadataIndex const * metaidx);
@@ -209,14 +208,10 @@ private:
   {
     uint32_t m_common = 0;
     uint32_t m_header2 = 0;
-    GeometryOffsets m_pts;
-    GeometryOffsets m_trg;
 
     void Reset()
     {
       m_common = m_header2 = 0;
-      m_pts.clear();
-      m_trg.clear();
     }
   };
 

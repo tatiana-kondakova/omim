@@ -29,20 +29,7 @@ public:
 
   // For FeatureType serialization maxNumTriangles should be less than numeric_limits<uint8_t>::max
   // because FeatureType format uses uint8_t to encode the number of triangles.
-  GeometryHolder(FileGetter geoFileGetter, FileGetter trgFileGetter, FeatureBuilder & fb,
-                 feature::DataHeader const & header, size_t maxNumTriangles = 14)
-    : m_geoFileGetter(geoFileGetter)
-    , m_trgFileGetter(trgFileGetter)
-    , m_fb(fb)
-    , m_ptsInner(true)
-    , m_trgInner(true)
-    , m_header(header)
-    , m_maxNumTriangles(maxNumTriangles)
-  {
-  }
-
-  GeometryHolder(FeatureBuilder & fb, feature::DataHeader const & header,
-                 size_t maxNumTriangles = 14)
+  GeometryHolder(FeatureBuilder & fb, feature::DataHeader const & header, size_t maxNumTriangles = 14)
     : m_fb(fb)
     , m_ptsInner(true)
     , m_trgInner(true)
@@ -62,6 +49,8 @@ public:
 
   void AddPoints(Points const & points, int scaleIndex)
   {
+    if (m_havePts)
+      return;
     if (m_ptsInner && points.size() <= m_maxNumTriangles)
     {
       if (m_buffer.m_innerPts.empty())
@@ -75,12 +64,16 @@ public:
       m_ptsInner = false;
       WriteOuterPoints(points, scaleIndex);
     }
+    m_havePts = true;
   }
 
   bool NeedProcessTriangles() const { return !m_trgInner || m_buffer.m_innerTrg.empty(); }
 
   bool TryToMakeStrip(Points & points)
   {
+    if (m_haveTrg)
+      return false;
+
     size_t const count = points.size();
     if (!m_trgInner || (count >= 2 && count - 2 > m_maxNumTriangles))
     {
@@ -123,15 +116,19 @@ public:
     MakeSingleStripFromIndex(index, count, StripEmitter(points, m_buffer.m_innerTrg));
 
     CHECK_EQUAL(count, m_buffer.m_innerTrg.size(), ());
+    m_haveTrg = true;
     return true;
   }
 
   void AddTriangles(Polygons const & polys, int scaleIndex)
   {
+    if (m_haveTrg)
+      return;
     CHECK(m_buffer.m_innerTrg.empty(), ());
     m_trgInner = false;
 
     WriteOuterTriangles(polys, scaleIndex);
+    m_haveTrg = true;
   }
 
 private:
@@ -151,29 +148,24 @@ private:
 
   void WriteOuterPoints(Points const & points, int i)
   {
-    CHECK(m_geoFileGetter, ("m_geoFileGetter must be set to write outer points."));
-
+    CHECK(m_buffer.m_ptsBuffer.empty(), ());
     // outer path can have 2 points in small scale levels
     ASSERT_GREATER(points.size(), 1, ());
 
-    auto cp = m_header.GetGeometryCodingParams(i);
+    auto cp = m_header.GetDefGeometryCodingParams();
 
     // Optimization: Store first point once in header for outer linear features.
     cp.SetBasePoint(points[0]);
     // Can optimize here, but ... Make copy of vector.
     Points toSave(points.begin() + 1, points.end());
 
-    m_buffer.m_ptsMask |= (1 << i);
-    auto const pos = feature::CheckedFilePosCast(m_geoFileGetter(i));
-    m_buffer.m_ptsOffset.push_back(pos);
-
-    serial::SaveOuterPath(toSave, cp, m_geoFileGetter(i));
+    MemWriter<std::vector<char>> memWriter(m_buffer.m_ptsBuffer);
+    serial::SaveOuterPath(toSave, cp, memWriter);
   }
 
   void WriteOuterTriangles(Polygons const & polys, int i)
   {
-    CHECK(m_trgFileGetter, ("m_trgFileGetter must be set to write outer triangles."));
-
+    CHECK(m_buffer.m_trgBuffer.empty(), ());
     // tesselation
     tesselator::TrianglesInfo info;
     if (0 == tesselator::TesselateInterior(polys, info))
@@ -182,7 +174,7 @@ private:
       return;
     }
 
-    auto const cp = m_header.GetGeometryCodingParams(i);
+    auto const cp = m_header.GetDefGeometryCodingParams();
 
     serial::TrianglesChainSaver saver(cp);
 
@@ -202,10 +194,8 @@ private:
     // CHECK_LESS_OR_EQUAL(saver.GetBufferSize(), checkSaver.GetBufferSize(), ());
 
     // saving to file
-    m_buffer.m_trgMask |= (1 << i);
-    auto const pos = feature::CheckedFilePosCast(m_trgFileGetter(i));
-    m_buffer.m_trgOffset.push_back(pos);
-    saver.Save(m_trgFileGetter(i));
+    MemWriter<std::vector<char>> memWriter(m_buffer.m_trgBuffer);
+    saver.Save(memWriter);
   }
 
   void FillInnerPointsMask(Points const & points, uint32_t scaleIndex)
@@ -235,9 +225,6 @@ private:
     }
   }
 
-  FileGetter m_geoFileGetter = {};
-  FileGetter m_trgFileGetter = {};
-
   FeatureBuilder & m_fb;
 
   FeatureBuilder::SupportingData m_buffer;
@@ -248,5 +235,8 @@ private:
   feature::DataHeader const & m_header;
   // max triangles number to store in innerTriangles
   size_t m_maxNumTriangles;
+
+  bool m_havePts = false;
+  bool m_haveTrg = false;
 };
 }  //  namespace feature

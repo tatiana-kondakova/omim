@@ -608,12 +608,12 @@ bool FeatureBuilder::PreSerializeAndRemoveUselessNamesForMwm(SupportingData cons
   GeomType const geomType = m_params.GetGeomType();
   if (geomType == GeomType::Line)
   {
-    if (data.m_ptsMask == 0 && data.m_innerPts.empty())
+    if (data.m_ptsBuffer.empty() && data.m_innerPts.empty())
       return false;
   }
   else if (geomType == GeomType::Area)
   {
-    if (data.m_trgMask == 0 && data.m_innerTrg.empty())
+    if (data.m_trgBuffer.empty() && data.m_innerTrg.empty())
       return false;
   }
 
@@ -676,17 +676,9 @@ void FeatureBuilder::SerializeForMwm(SupportingData & data,
     BitWriter<PushBackByteSink<Buffer>> bitSink(sink);
 
     if (type == GeomType::Line)
-    {
       bitSink.Write(ptsCount, 4);
-      if (ptsCount == 0)
-        bitSink.Write(data.m_ptsMask, 4);
-    }
     else if (type == GeomType::Area)
-    {
       bitSink.Write(trgCount, 4);
-      if (trgCount == 0)
-        bitSink.Write(data.m_trgMask, 4);
-    }
   }
 
   if (type == GeomType::Line)
@@ -712,10 +704,7 @@ void FeatureBuilder::SerializeForMwm(SupportingData & data,
 
       // Store first point once for outer linear features.
       serial::SavePoint(sink, GetOuterGeometry()[0], params);
-
-      // offsets was pushed from high scale index to low
-      reverse(data.m_ptsOffset.begin(), data.m_ptsOffset.end());
-      WriteVarUintArray(data.m_ptsOffset, sink);
+      sink.Write(data.m_ptsBuffer.data(), data.m_ptsBuffer.size());
     }
   }
   else if (type == GeomType::Area)
@@ -723,11 +712,7 @@ void FeatureBuilder::SerializeForMwm(SupportingData & data,
     if (trgCount > 0)
       serial::SaveInnerTriangles(data.m_innerTrg, params, sink);
     else
-    {
-      // offsets was pushed from high scale index to low
-      reverse(data.m_trgOffset.begin(), data.m_trgOffset.end());
-      WriteVarUintArray(data.m_trgOffset, sink);
-    }
+      sink.Write(data.m_trgBuffer.data(), data.m_trgBuffer.size());
   }
 }
 

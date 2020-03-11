@@ -34,14 +34,12 @@ public:
 
   struct SupportingData
   {
-    Offsets m_ptsOffset;
-    Offsets m_trgOffset;
-    uint8_t m_ptsMask = 0;
-    uint8_t m_trgMask = 0;
     uint32_t m_ptsSimpMask = 0;
     PointSeq m_innerPts;
     PointSeq m_innerTrg;
     Buffer m_buffer;
+    Buffer m_trgBuffer;
+    Buffer m_ptsBuffer;
   };
 
   FeatureBuilder();

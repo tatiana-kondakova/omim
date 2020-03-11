@@ -61,13 +61,6 @@ public:
     , m_regionData(regionData)
     , m_versionDate(versionDate)
   {
-    for (size_t i = 0; i < m_header.GetScalesCount(); ++i)
-    {
-      string const postfix = strings::to_string(i);
-      m_geoFile.push_back(make_unique<TmpFile>(filename + GEOMETRY_FILE_TAG + postfix));
-      m_trgFile.push_back(make_unique<TmpFile>(filename + TRIANGLE_FILE_TAG + postfix));
-    }
-
     m_metadataFile = make_unique<TmpFile>(filename + METADATA_FILE_TAG);
     m_addrFile = make_unique<FileWriter>(filename + TEMP_ADDR_FILENAME);
   }
@@ -119,13 +112,6 @@ public:
       writer.Write(w->GetName(), tag + postfix);
     };
 
-    for (size_t i = 0; i < m_header.GetScalesCount(); ++i)
-    {
-      string const postfix = strings::to_string(i);
-      finalizeFn(move(m_geoFile[i]), GEOMETRY_FILE_TAG, postfix);
-      finalizeFn(move(m_trgFile[i]), TRIANGLE_FILE_TAG, postfix);
-    }
-
     finalizeFn(move(m_metadataFile), METADATA_FILE_TAG);
 
     {
@@ -162,9 +148,7 @@ public:
 
   uint32_t operator()(FeatureBuilder & fb)
   {
-    GeometryHolder holder([this](int i) -> FileWriter & { return *m_geoFile[i]; },
-                          [this](int i) -> FileWriter & { return *m_trgFile[i]; }, fb, m_header);
-
+    GeometryHolder holder(fb, m_header);
     int const scalesStart = static_cast<int>(m_header.GetScalesCount()) - 1;
 
     //auto isUselessHouse = [&](FeatureBuilder & fb) {
@@ -349,7 +333,6 @@ private:
 
   // Temporary files for sections.
   unique_ptr<TmpFile> m_metadataFile;
-  TmpFiles m_geoFile, m_trgFile;
 
   // Mapping from feature id to offset in file section with the correspondent metadata.
   vector<pair<uint32_t, uint32_t>> m_metadataOffset;
