@@ -98,8 +98,8 @@ void FillProjections(std::vector<m2::PointD> & polyline, size_t startIndex, size
 
     // The distance on the polyline between the projections of stops must not be less than the
     // shortest possible distance between the stops themselves.
-    if (proj.m_distFromStart < distStopsM)
-      continue;
+    // if (proj.m_distFromStart < distStopsM)
+    //  continue;
 
     if (proj.m_distFromPoint < maxDistFromStopM)
       projections.emplace_back(proj);
@@ -108,7 +108,7 @@ void FillProjections(std::vector<m2::PointD> & polyline, size_t startIndex, size
 
 std::pair<size_t, bool> PrepareNearestPointOnTrack(m2::PointD const & point,
                                                    std::optional<m2::PointD> const & prevPoint,
-                                                   size_t startIndex,
+                                                   size_t prevIndex, Direction direction,
                                                    std::vector<m2::PointD> & polyline)
 {
   // We skip 70% of the distance in a straight line between two stops for preventing incorrect
@@ -118,9 +118,12 @@ std::pair<size_t, bool> PrepareNearestPointOnTrack(m2::PointD const & point,
   std::vector<ProjectionData> projections;
   // Reserve space for points on polyline which are relatively close to the shape.
   // Approximately 1/4 of all points on shape.
-  projections.reserve((polyline.size() - startIndex) / 4);
+  auto const size = direction == Direction::Forward ? polyline.size() - prevIndex : prevIndex;
+  projections.reserve(size / 4);
 
-  FillProjections(polyline, startIndex, polyline.size() - 1, point, distStopsM, projections);
+  auto const startIndex = direction == Direction::Forward ? prevIndex : 0;
+  auto const endIndex = direction == Direction::Forward ? polyline.size() - 1 : prevIndex;
+  FillProjections(polyline, startIndex, endIndex, point, distStopsM, projections);
 
   if (projections.empty())
     return {polyline.size() + 1, false};
@@ -145,7 +148,7 @@ std::pair<size_t, bool> PrepareNearestPointOnTrack(m2::PointD const & point,
 
   // This case is possible not only for the first stop on the shape. We try to resolve situation
   // when two stops are projected to the same point on the shape.
-  if (proj->m_indexOnShape == startIndex)
+  if (proj->m_indexOnShape == prevIndex)
   {
     proj = std::min_element(projections.begin(), projections.end(),
                          [](ProjectionData const & p1, ProjectionData const & p2) {
